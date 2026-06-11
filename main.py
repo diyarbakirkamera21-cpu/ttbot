@@ -7,9 +7,9 @@ from telethon.sessions import StringSession
 logging.basicConfig(level=logging.WARNING)
 
 # ENV
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
-STRING_SESSION = os.getenv("STRING_SESSION")
+API_ID = int(os.getenv("API_ID", "0"))
+API_HASH = str(os.getenv("API_HASH", ""))
+STRING_SESSION = str(os.getenv("STRING_SESSION", ""))
 
 # KANALLAR
 SOURCE_CHANNELS = ["@ww3media", "@Sancaktari"]
