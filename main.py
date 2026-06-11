@@ -3,50 +3,72 @@ import logging
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
+# log
 logging.basicConfig(level=logging.WARNING)
 
-
-API_HASH = os.getenv("API_HASH")
+# =====================
+# ENV SAFE READ
+# =====================
 API_ID = os.getenv("API_ID")
+API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
 
-# 🔥 CHECK (EN ÖNEMLİ KISIM)
+# ❌ eksik kontrol
 if not API_ID or not API_HASH or not STRING_SESSION:
-    print("❌ ENV eksik! Railway variables kontrol et")
+    print("❌ ENV eksik (API_ID / API_HASH / STRING_SESSION)")
     exit()
 
 API_ID = int(API_ID)
 
+# =====================
+# KANALLAR
+# =====================
 SOURCE_CHANNELS = ["@ww3media", "@Sancaktari"]
 TARGET_CHANNEL = "@dunyadanhaberlerdeepweb"
 
+# footer
 FOOTER = "\n\n⚡ @dunyadanhaberlerdeepweb"
 
+# =====================
+# CLIENT
+# =====================
 client = TelegramClient(
     StringSession(STRING_SESSION),
     API_ID,
     API_HASH
 )
 
+# duplicate engel
 seen_groups = set()
 seen_messages = set()
 
 
+# =====================
+# HANDLER
+# =====================
 @client.on(events.NewMessage(chats=SOURCE_CHANNELS))
 async def handler(event):
 
+    # ───────── ALBUM ─────────
     if event.grouped_id:
-        if event.grouped_id in seen_groups:
-            return
-        seen_groups.add(event.grouped_id)
+        gid = event.grouped_id
 
-        await client.send_file(
-            TARGET_CHANNEL,
-            event.message,
-            caption=FOOTER
-        )
+        if gid in seen_groups:
+            return
+        seen_groups.add(gid)
+
+        try:
+            await client.send_file(
+                TARGET_CHANNEL,
+                event.messages,
+                caption=FOOTER
+            )
+        except Exception as e:
+            print("Album hata:", e)
+
         return
 
+    # ───────── NORMAL MESAJ ─────────
     mid = (event.chat_id, event.id)
 
     if mid in seen_messages:
@@ -55,18 +77,32 @@ async def handler(event):
 
     msg = event.message
 
-    if msg.media:
-        await client.send_file(
-            TARGET_CHANNEL,
-            msg.media,
-            caption=(msg.text or "") + FOOTER
-        )
-    else:
-        if msg.text:
-            await client.send_message(
+    try:
+        if msg.media:
+            await client.send_file(
                 TARGET_CHANNEL,
-                msg.text + FOOTER
+                msg.media,
+                caption=(msg.text or "") + FOOTER
             )
+        else:
+            if msg.text:
+                await client.send_message(
+                    TARGET_CHANNEL,
+                    msg.text + FOOTER
+                )
 
-print("🚀 Bot çalışıyor...")
-client.run_until_disconnected()
+    except Exception as e:
+        print("Message hata:", e)
+
+
+# =====================
+# START (DOĞRU YÖNTEM)
+# =====================
+async def main():
+    await client.start()
+    print("🚀 Bot çalışıyor...")
+    await client.run_until_disconnected()
+
+
+with client:
+    client.loop.run_until_complete(main())
