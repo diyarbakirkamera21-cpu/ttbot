@@ -5,8 +5,9 @@ from telethon.sessions import StringSession
 
 logging.basicConfig(level=logging.WARNING)
 
-API_ID = os.getenv("API_ID")
+
 API_HASH = os.getenv("API_HASH")
+API_ID = os.getenv("API_ID")
 STRING_SESSION = os.getenv("STRING_SESSION")
 
 # 🔥 CHECK (EN ÖNEMLİ KISIM)
