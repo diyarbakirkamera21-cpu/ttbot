@@ -13,13 +13,6 @@ API_ID = os.getenv("API_ID")
 API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
 
-# ❌ eksik kontrol
-if not API_ID or not API_HASH or not STRING_SESSION:
-    print("❌ ENV eksik (API_ID / API_HASH / STRING_SESSION)")
-    exit()
-
-API_ID = int(API_ID)
-
 # =====================
 # KANALLAR
 # =====================
